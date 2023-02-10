@@ -3,6 +3,15 @@ import numpy as np
 import matplotlib 
 from cycler import cycler
 
+# output file frequency 
+dt_plot_sim = 5.0
+
+# Arbitrary renormalisation for skymaps to make colourmaps have less 000
+skymap_renorm = 1000.0
+
+ndt_max = 87
+plot_times = [24, 42, 64, 68]
+
 def set_mod_defaults():
 	'''
 	set some default plot parameters

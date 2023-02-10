@@ -5,7 +5,7 @@ import sys
 import echo_util as util
 from tqdm import tqdm
 import os
-
+from scipy.signal import savgol_filter
 
 def total_flux_from_skymaps(directory, timestamps):
     '''
@@ -31,11 +31,11 @@ def save_all_fluxes(savename, t, fluxA, fluxB, fluxC):
 def prepare_data(load=True):
 
     delta_t = 0.03 * 1e6 * PARSEC / C / YR / 1e6
-    dt_plot = delta_t * 10.0
+    dt_plot = delta_t * util.dt_plot_sim
 
     shape = (601, 601)  # number of bins outputted from program
 
-    timestamps = np.arange(0, 45, 1.0)
+    timestamps = np.arange(0, util.ndt_max, 1.0)
     runs = ["ModelA", "ModelB", "ModelC"]
     flux = []
 
@@ -73,8 +73,10 @@ def make_plots(t, flux, labels=["A", "B", "C"], colors=["C0", "C2", "C1"]):
     # plot each model output
     for imod, folder in enumerate(flux):
         n = flux[imod]
-        n0 = flux[0]
-        plt.plot(t, n / np.max(n0), lw=3,
+        n0 = n
+        ff = savgol_filter(n / np.max(n0), 3,2)
+        #ff = n / np.max(n0)
+        plt.plot(t, ff, lw=3,
                  label="Model {}".format(labels[imod]), c=colors[imod])
 
     # plot exponential with 3 Myr decay
@@ -101,6 +103,7 @@ def make_plots(t, flux, labels=["A", "B", "C"], colors=["C0", "C2", "C1"]):
     plt.savefig("{}/fig4.pdf".format(figure_dir))
 
 def run(load=True, reset_cycler = True):
+    print ("Making figure 4...")
     util.set_mod_defaults()
     util.set_times()
     util.set_cycler("colorblind")
@@ -109,8 +112,9 @@ def run(load=True, reset_cycler = True):
     make_plots(t, flux)
 
     if reset_cycler:
-        # revert to default colors
+        # revert to default colors
         util.set_cycler('default')
+    print ("Done.")
 
 if __name__ == "__main__":
     run(load = True)

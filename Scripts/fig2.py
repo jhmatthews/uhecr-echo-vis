@@ -32,47 +32,6 @@ def draw_planes(colors=["k", "C1"]):
 		args = np.argsort(ldata)
 		plt.plot( ldata[args][:-1], coords.galactic.b.radian[args][:-1], c=colors[i], label=labels[i+1], lw=2, ls=ls[i])
 
-def draw_hotspot(color = "C3", mode="fill"):
-	#9h 30m,+54◦
-	hotspot = SkyCoord("9 30 00.0 +54 00 00.00", frame='icrs', unit=(u.hourangle, u.deg))
-	#hotspot = SkyCoord(ra=146.7*u.degree, dec=43.2*u.degree, frame='icrs')
-	ra_rad = flip_data2(hotspot.galactic.l.radian)
-	#plt.scatter(ra_rad, hotspot.icrs.dec.radian, zorder=3, facecolors=color, 
-	#    alpha=0.9, s=120, marker="*", 
-	#    edgecolors="None", label="TA Excess")
-
-	# Plot circle with 360 vertexes
-	phi = np.linspace(0, 2.*np.pi, 360)  
-	r = np.radians(15)
-	x = ra_rad + r*np.cos(phi)
-	y = hotspot.galactic.b.radian + r*np.sin(phi)
-	#plt.plot(x, y, color=color)
-	if mode == "fill":
-		plt.fill_between(x,y, alpha=0.4, color=color, label="TA Excess", linewidth=0)
-	elif mode == "line":
-		plt.plot(x, y, color=color, label="TA Excess")
-
-def draw_pao_hotspot(color="C2", mode="fill"):
-	hotspot = SkyCoord("12 50 00.0 -50 00 00.00", frame='icrs', unit=(u.hourangle, u.deg))
-	#hotspot = SkyCoord(ra=146.7*u.degree, dec=43.2*u.degree, frame='icrs')
-	ra_rad = flip_data2(hotspot.galactic.l.radian)
-	#plt.scatter(ra_rad, hotspot.icrs.dec.radian, zorder=3, facecolors=color, 
-	#    alpha=0.9, s=120, marker="*", 
-	#    edgecolors="None", label="PAO Excess")
-
-	# Plot circle with 360 vertexes
-	phi = np.linspace(0, 2.*np.pi, 360)  
-	r = np.radians(20)
-	x = ra_rad + r*np.cos(phi)
-	y = hotspot.galactic.b.radian + r*np.sin(phi)
-	#plt.plot(x, y, color=color)
-	if mode == "fill":
-		plt.fill_between(x,y, alpha=0.4, color=color, label="PAO Excess", linewidth=0)
-	elif mode == "line":
-		plt.plot(x, y, color=color, label="PAO Excess")
-	#9h 30m,+54◦
-
-
 def set_labels():
 	ticks = np.array([-180,-135,-90,-45,0,45,90,135,180])
 	ticks = np.array([-180,-120,-60,0,60,120,180])
@@ -94,28 +53,6 @@ def set_labels():
 	tick_labels = [r"${}^\circ$".format(i) for i in tick_labels]
 	plt.gca().set_xticklabels(tick_labels, fontsize=18)
 
-def flip_data(l):
-	#l[l<np.pi] *= -1
-	#l[l>np.pi] = (2.0*np.pi) - l[l>np.pi]
-	l = np.pi - l
-	return l
-
-
-def data_to_coord():
-	ra, dec, t = np.genfromtxt("csvscatterRAdec.csv", unpack=True)
-
-	# ra_str = np.empty(len(ra), dtype=str)
-	# for i, r in enumerate(ra):
-	# 	hours = r
-	# 	seconds = hours * 3600
-	# 	m, s = divmod(seconds, 60)
-	# 	h, m = divmod(m, 60)
-	# 	#print ("%d %02d %02d" % (h, m, s))
-	# 	ra_str[i] = "%d %02d %02d" % (h, m, s)
-
-
-	c = SkyCoord(ra * u.hourangle, dec * u.degree, unit=(u.hourangle, u.deg))
-	return (c, t)
 
 def get_galaxies():
 	coords = dict()
@@ -152,10 +89,11 @@ def init_figure(subplot, projection="aitoff"):
 
 
 
-
-def add_SBGS(sbg_color="k", cena_color="C6", text=True):
+def add_Galaxies(sbg_color="k", cena_color="C6", text=True):
 	i = 0
 	j = 0
+
+	# offsets for labels of galaxies (done by hand)
 	offsets = dict()
 	offsets["M83"] = (20,5)
 	offsets["CenA"] = (-60,0)
@@ -167,19 +105,16 @@ def add_SBGS(sbg_color="k", cena_color="C6", text=True):
 	offsets["M94"] = (20,-9)
 	offsets["M64"] = (-30,-12)
 	offsets["Maffei1"] = (0,-7)
+
+	# get the coordinates and labels for each galaxy
 	coords, labels = get_galaxies()
 
 	fs = 20
 	ms = 250
 	doff = [1,0.05,0.05,1.0,0.08,0.1,0.08,1,1,1] # fraction by which to offset point of the arrow
 
-
 	for keys, values in coords.items():
 		ra_rad = coords[keys].galactic.l.radian
-		# if ra_rad > np.pi:
-		# 	ra_rad = (2.0*np.pi) - ra_rad
-		# else:
-		# 	ra_rad *= -1.0
 
 		ra_rad = flip_data2(ra_rad)
 		ycoord_to_use = coords[keys].galactic.b.radian
@@ -215,32 +150,24 @@ def add_SBGS(sbg_color="k", cena_color="C6", text=True):
 						 arrowprops=dict(arrowstyle="->",connectionstyle="arc3", color=text_color), 
 						 color=text_color, fontsize=fs, fontweight='bold',
 						 horizontalalignment=ha, verticalalignment=va)
-			# else:
-			# 	plt.annotate(labels[keys], 
-			# 			 xytext, 
-			# 			 xytext=xytext,
-						 # arrowprops=dict(arrowstyle="->",connectionstyle="arc3", color=text_color), color=text_color, fontsize=fs, fontweight='bold')
 		j+=1
 
 
 def run():
-	res = 0.03
-	delta_t = 0.03 * 1e6 * PARSEC / C / YR / 1e6
-	dt_plot = delta_t * 10.0
+	print ("Making figure 2...")
 
 	util.set_mod_defaults()
 	util.set_times()
 
 	init_figure(111, projection="hammer")
 	draw_planes()
-	#draw_hotspot()
-	#draw_pao_hotspot()
-	add_SBGS()
+	add_Galaxies()
 	set_labels()
 
 	plt.subplots_adjust(top=0.92, bottom=0.08, right=0.96,left=0.04)
 	figure_dir = os.path.abspath(os.path.join(os.path.dirname(__file__ ), '..', 'Figures'))
 	plt.savefig("{}/fig2.pdf".format(figure_dir))
+	print ("Done.")
 
 if __name__ == "__main__":
 	run()

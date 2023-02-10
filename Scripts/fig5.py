@@ -11,17 +11,13 @@ xsc = [-1.1,  3.2,  3.9,  3.7,  2.8,  2.3, -2.4, -3.2, -1.7]
 ysc = [4.8,  3.8,  2.3, -0.3, -1.9, -2.4, -2.5,  2.8,  2.8]
 res = 0.03
 delta_t = 0.03 * 1e6 * PARSEC / C / YR / 1e6
-dt_plot = delta_t * 10.0
+dt_plot = delta_t * util.dt_plot_sim
 
 CenAColor = "C6"
-def draw_scatterers(radius=10.0):
+def draw_scatterers():
 	for i in range(len(xsc)):
 		circle1 = plt.Circle((xsc[i],ysc[i]), 10.0 * res, fill = False, color = "k", ls="-")
-		#print (i)
 		plt.gca().add_artist(circle1)
-
-
-	#plt.scatter(xsc, ysc)
 
 	plt.scatter([0],[0], marker="+", color="C0", zorder=3, s=100)
 	plt.scatter([-1.5],[3.2], marker="o", color = CenAColor, zorder=3, s=100)
@@ -52,6 +48,7 @@ def run(cmap = "viridis", fmt="pdf"):
 	shape = (601,601) # number of bins outputted from program
 	util.set_mod_defaults()
 	util.set_times()
+	print ("Making figure 5...")
 
 	plt.figure(figsize=(6.35,5))
 	n1 = 6
@@ -87,7 +84,6 @@ def run(cmap = "viridis", fmt="pdf"):
 
 
 	draw_scatterers()
-	#plt.colorbar()
 	set_lims()
 
 	plt.ylabel(r"$y~({\rm Mpc})$", labelpad=-2, fontsize=18)
@@ -103,6 +99,7 @@ def run(cmap = "viridis", fmt="pdf"):
 
 	figure_dir = os.path.abspath(os.path.join(os.path.dirname(__file__ ), '..', 'Figures'))
 	plt.savefig("{}/fig5.{}".format(figure_dir, fmt), format=fmt)
+	print ("Done.")
 
 if __name__ == "__main__":
 	run()

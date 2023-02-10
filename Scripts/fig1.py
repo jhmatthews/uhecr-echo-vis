@@ -12,7 +12,7 @@ ysc = [4.8,  3.8,  2.3, -0.3, -1.9, -2.4, -2.5,  2.8,  2.8]
 names = ["M83", "M64", "M94", "M81", "IC 342", "Maffei 1", "NGC 253", "Circinus", "NGC 4945"]
 res = 0.03
 delta_t = 0.03 * 1e6 * PARSEC / C / YR / 1e6
-dt_plot = delta_t * 10.0
+dt_plot = delta_t * util.dt_plot_sim
 
 def draw_scatterers(radius=10.0):
     fontsize=15
@@ -44,6 +44,7 @@ def set_lims():
     plt.ylim(-lim,lim)
 
 def run():
+    print ("Making figure 1...")
     plt.figure(figsize=(5.62,5.48/0.998))
     draw_scatterers()
     set_lims()
@@ -53,6 +54,7 @@ def run():
     plt.grid(ls=":")
     figure_dir = os.path.abspath(os.path.join(os.path.dirname(__file__ ), '..', 'Figures'))
     plt.savefig("{}/fig1.pdf".format(figure_dir))
+    print ("Done.")
 
 if __name__ == "__main__":
     run()

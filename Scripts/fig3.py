@@ -10,7 +10,7 @@ util.set_times()
 
 res = 0.03
 delta_t = 0.03 * 1e6 * PARSEC / C / YR / 1e6
-dt_plot = delta_t * 10.0
+dt_plot = delta_t * util.dt_plot_sim
 
 
 def draw_scatterers(ax, radius=10.0):
@@ -47,7 +47,7 @@ def create_hdf5_dataset(Models, timestamps, hf_fname="Data/xy_data.h5"):
             directory = "{}/{}/output_000/".format(data_dir, Model)
             fname = "xbin_{:08d}.out".format(ntime)
             x, y, xbin_xyt = np.genfromtxt(
-                "{}/{}".format(directory, fname), usecols=np.arange(0, 3), unpack=True, skip_header=3)
+                "{}/{}".format(directory, fname), usecols=np.arange(0, 3), unpack=True, skip_header=0)
 
             x = np.reshape(x, (shape))
             y = np.reshape(y, (shape))
@@ -63,7 +63,7 @@ def create_hdf5_dataset(Models, timestamps, hf_fname="Data/xy_data.h5"):
     hf.close()
 
 
-def figure_from_hdf5(hf, timestamps, Models):
+def figure_from_hdf5(hf, timestamps, Models, figname = ["fig3", "figb1", "figb2"]):
     """
     Make spatial density figures from and hfd5 database
     """
@@ -71,7 +71,6 @@ def figure_from_hdf5(hf, timestamps, Models):
     # labels and save names
     model_name = ["Model A (Pulse)", "Model B (Decline)",
                   "Model C (Delayed Escape)"]
-    figname = ["fig3", "figb1", "figb2"]
 
     for irun, Model in enumerate(Models):
 
@@ -81,6 +80,8 @@ def figure_from_hdf5(hf, timestamps, Models):
         group = hf.get(Model)
 
         # loop over each timestamp and plot results
+        vmin = -2.99 + (np.log10(0.03))
+        vmax = 2 + (np.log10(0.03))
         print("Plotting for {}".format(Model))
         for j in tqdm(range(len(timestamps))):
             ntime = timestamps[j]
@@ -94,8 +95,8 @@ def figure_from_hdf5(hf, timestamps, Models):
 
             # plot and adjust cosmetics
             ax = axes[j]
-            mappable1 = ax.pcolormesh(x, y, np.log10(
-                xbin), cmap="Blues", vmin=-2.99, vmax=2)
+            mappable1 = ax.pcolormesh(x, y, np.log10(xbin) - vmax, 
+                cmap="Blues", vmin=vmin-vmax, vmax=0.0, shading="gouraud")
 
             draw_scatterers(ax)
 
@@ -134,8 +135,10 @@ def figure_from_hdf5(hf, timestamps, Models):
             "{}/{}.png".format(figure_dir, figname[irun]), format="png", dpi=300)
 
 
-def run(timestamps=[4, 12, 21, 34], load=True, Models=["ModelA", "ModelB", "ModelC"]):
+def run(timestamps=[4,12,21,34], load=True, Models=["ModelA", "ModelB", "ModelC"]):
 
+    print ("Making figure 3, and analogues for other models...")
+    timestamps = np.array(timestamps, dtype=int) * int(10.0 // util.dt_plot_sim)
     # data for Models A,B,C should be stored in this filename
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__ ), '..', 'Data'))
     hf_fname = "{}/xy_data.h5".format(data_dir)
@@ -153,4 +156,4 @@ def run(timestamps=[4, 12, 21, 34], load=True, Models=["ModelA", "ModelB", "Mode
 
 
 if __name__ == "__main__":
-    run(load = True)
+    run(load = False)
