@@ -1,6 +1,8 @@
 # uhecr-echo-vis
 Visualisation, data and scripts for the Taylor et al. UHECR CoG echoes paper
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7634625.svg)](https://doi.org/10.5281/zenodo.7634625)
+
 ## Directory Structure
 
 * Movies/ -- all movies of skymaps and frames that create the movies
